@@ -2,15 +2,16 @@ import { Webhook } from "svix";
 import connectDB from "@/config/db";
 import User from "@/models/User";
 import { NextRequest } from "next/server";
+import { headers } from 'next/headers';
 
 export async function POST(req){
-    const wh = new Webhook(process.env.SIGNING_SECRET)
-    const headerPayload = await headers()
+    const wh = new Webhook(process.env.SIGNING_SECRET);
+    const headersList = headers();
     const svixHeaders = {
-        "svix-id": headerPayload.get("svix-id"),
-        "svix-timestamp": headerPayload.get("svix-timestamp"),
+        "svix-id": headersList.get("svix-id"),
+        "svix-timestamp": headersList.get("svix-timestamp"),
         
-        "svix-signature": headerPayload.get("svix-signature"),
+        "svix-signature": headersList.get("svix-signature"),
     };
     // Get the payload and verify it 
 
