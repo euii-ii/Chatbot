@@ -7,34 +7,49 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import remarkGfm from 'remark-gfm'
 import toast from 'react-hot-toast'
 
-const Message = ({ role, content, isStreaming }) => {
+const Message = ({ role, content, isStreaming, isLastMessage, onRegenerate }) => {
     const copyMessage = () => {
         navigator.clipboard.writeText(content)
         toast.success('Message copied to clipboard!')
     }
 
+    const handleEdit = () => {
+        // TODO: Implement edit functionality
+        toast.success('Edit functionality coming soon!')
+    }
+
+    const handleRegenerate = () => {
+        if (onRegenerate) {
+            onRegenerate()
+        } else {
+            toast.error('Regenerate function not available')
+        }
+    }
+
 
     return (
-        <div className='w-full py-2 sm:py-3 lg:py-4'>
+        <div className='w-full py-1 sm:py-2'>
             <div className={`flex w-full ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`group relative flex w-full max-w-[95%] sm:max-w-[85%] lg:max-w-4xl xl:max-w-5xl ${
+                <div className={`group relative flex ${
                     role === 'user'
-                        ? 'px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5'
-                        : isStreaming
-                            ? 'px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-xl sm:rounded-2xl border border-blue-500/20 backdrop-blur-sm animate-pulse'
-                            : 'px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-5'
-                }`}>
+                        ? 'max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] px-3 sm:px-4 py-2 sm:py-3 text-white'
+                        : 'w-full max-w-[95%] sm:max-w-[85%] lg:max-w-4xl xl:max-w-5xl text-white'
+                } ${
+                    isStreaming && role !== 'user'
+                        ? 'px-3 sm:px-4 py-2 sm:py-3 animate-pulse'
+                        : role !== 'user' ? 'px-3 sm:px-4 py-2 sm:py-3' : ''
+                } transition-all duration-300`}>
                     {role !== 'user' && (
                         <Image
                             src={assets.logo_icon}
                             alt='AI'
-                            className='h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 xl:h-9 xl:w-9 mt-1 mr-2 sm:mr-3 lg:mr-4 xl:mr-5 border border-white/20 rounded-full flex-shrink-0'
+                            className='h-6 w-6 sm:h-7 sm:w-7 mt-1 mr-2 sm:mr-3 rounded-full flex-shrink-0'
                             width={32}
                             height={32}
                         />
                     )}
                     
-                    <div className={`relative ${role === 'user' ? 'text-white/90' : 'text-white/80'} flex-1 min-w-0`}>
+                    <div className={`relative text-white flex-1 min-w-0`}>
                         <Markdown
                             remarkPlugins={[remarkGfm]}
                             components={{
@@ -105,23 +120,58 @@ const Message = ({ role, content, isStreaming }) => {
                         )}
                     </div>
 
-                    <div className={`opacity-0 group-hover:opacity-100 absolute ${
-                        role === 'user' 
-                            ? '-left-20 top-2' 
-                            : '-bottom-8 left-12'
-                    } transition-opacity duration-200`}>
-                        <div className='flex items-center gap-3 bg-[#2a2a2a] rounded-md px-2 py-1'>
+                    {/* Clean action buttons - just icons, no containers */}
+                    <div className={`opacity-100 absolute ${
+                        role === 'user'
+                            ? '-left-16 sm:-left-18 top-2 sm:top-3'
+                            : '-bottom-6 sm:-bottom-7 left-8 sm:left-10'
+                    } transition-opacity duration-200 z-10`}>
+                        <div className='flex items-center gap-1'>
                             {role === 'user' ? (
                                 <>
-                                    <Image onClick={copyMessage }  src={assets.copy_icon} alt='Copy' className='w-4 h-4 cursor-pointer hover:opacity-80' width={16} height={16} />
-                                    <Image src={assets.pencil_icon} alt='Edit' className='w-4 h-4 cursor-pointer hover:opacity-80' width={16} height={16} />
+                                    <button
+                                        onClick={copyMessage}
+                                        className='hover:scale-110 transition-transform duration-200'
+                                        title="Copy message"
+                                    >
+                                        <Image src={assets.copy_icon} alt='Copy' className='w-4 h-4 opacity-70 hover:opacity-100' width={16} height={16} />
+                                    </button>
+                                    <button
+                                        onClick={handleEdit}
+                                        className='hover:scale-110 transition-transform duration-200'
+                                        title="Edit message"
+                                    >
+                                        <Image src={assets.pencil_icon} alt='Edit' className='w-4 h-4 opacity-70 hover:opacity-100' width={16} height={16} />
+                                    </button>
                                 </>
                             ) : (
                                 <>
-                                    <Image onClick={copyMessage }  src={assets.copy_icon} alt='Copy' className='w-4 h-4 cursor-pointer hover:opacity-80' width={16} height={16} />
-                                    <Image src={assets.regenerate_icon} alt='Regenerate' className='w-4 h-4 cursor-pointer hover:opacity-80' width={16} height={16} />
-                                    <Image src={assets.like_icon} alt='Like' className='w-4 h-4 cursor-pointer hover:opacity-80' width={16} height={16} />
-                                    <Image src={assets.dislike_icon} alt='Dislike' className='w-4 h-4 cursor-pointer hover:opacity-80' width={16} height={16} />
+                                    <button
+                                        onClick={copyMessage}
+                                        className='hover:scale-110 transition-transform duration-200'
+                                        title="Copy message"
+                                    >
+                                        <Image src={assets.copy_icon} alt='Copy' className='w-4 h-4 opacity-70 hover:opacity-100' width={16} height={16} />
+                                    </button>
+                                    <button
+                                        onClick={handleRegenerate}
+                                        className='hover:scale-110 hover:rotate-180 transition-all duration-300'
+                                        title="Regenerate response"
+                                    >
+                                        <Image src={assets.regenerate_icon} alt='Regenerate' className='w-4 h-4 opacity-70 hover:opacity-100' width={16} height={16} />
+                                    </button>
+                                    <button
+                                        className='hover:scale-110 transition-transform duration-200'
+                                        title="Like response"
+                                    >
+                                        <Image src={assets.like_icon} alt='Like' className='w-4 h-4 opacity-70 hover:opacity-100' width={16} height={16} />
+                                    </button>
+                                    <button
+                                        className='hover:scale-110 transition-transform duration-200'
+                                        title="Dislike response"
+                                    >
+                                        <Image src={assets.dislike_icon} alt='Dislike' className='w-4 h-4 opacity-70 hover:opacity-100' width={16} height={16} />
+                                    </button>
                                 </>
                             )}
                         </div>

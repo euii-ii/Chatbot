@@ -48,7 +48,7 @@ export async function POST(request) {
         );
     }
 
-    const { chatId, prompt } = await request.json();
+    const { chatId, prompt, isRegenerate } = await request.json();
     if (!chatId || !prompt) {
         return NextResponse.json(
             { success: false, message: "Missing required fields" },
@@ -66,13 +66,15 @@ export async function POST(request) {
         );
     }
 
-    const userPrompt = {
-        role: "user",
-        content: prompt,
-        timestamp: Date.now()
-    };
-     
-    chat.messages.push(userPrompt);
+    // Only add user message if this is not a regeneration
+    if (!isRegenerate) {
+        const userPrompt = {
+            role: "user",
+            content: prompt,
+            timestamp: Date.now()
+        };
+        chat.messages.push(userPrompt);
+    }
 
     try {
         // Check if we have a valid API key (not a placeholder)
@@ -103,8 +105,10 @@ export async function POST(request) {
 
                 conversationMessages.push(...recentMessages);
 
-                // Add the current user prompt
-                conversationMessages.push({ role: "user", content: prompt });
+                // Add the current user prompt only if not regenerating
+                if (!isRegenerate) {
+                    conversationMessages.push({ role: "user", content: prompt });
+                }
 
                 const completion = await openai.chat.completions.create({
                     model: model,
