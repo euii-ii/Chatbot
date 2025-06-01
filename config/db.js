@@ -9,16 +9,16 @@ export default async function connectDB() {
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(process.env.MONGODB_URI).then((mongoose) => mongoose);
-      
-    }
-    try {
-        cached.conn = await cached.promise;
-
-    } catch (error) {
-        console.error ("Error connecting to MongoDB:",error);
-
-    }
-      return cached.conn
   }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    throw error;
+  }
+
+  return cached.conn;
+}
 
     
